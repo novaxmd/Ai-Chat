@@ -1,0 +1,101 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Bmb Tech Ai</title>
+
+<link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@700&family=Poppins:wght@300;400;600&display=swap" rel="stylesheet">
+
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+body{background:#000;color:#00fff2;font-family:'Poppins',sans-serif;height:100vh;display:flex;flex-direction:column;overflow:hidden}
+
+header{position:fixed;top:0;width:100%;background:#000;text-align:center;padding:10px;z-index:20;border-bottom:1px solid #111}
+header h1{font-family:'Orbitron',sans-serif;font-size:2rem;background:linear-gradient(90deg,#00ffff,#ff00ff,#00ff00,#ffcc00);-webkit-background-clip:text;-webkit-text-fill-color:transparent}
+header p{font-size:.8rem;color:#aaa}
+
+.chat{margin-top:120px;margin-bottom:140px;flex:1;overflow:hidden}
+.messages{padding:10px;overflow-y:auto;display:flex;flex-direction:column;gap:10px}
+
+.msg{max-width:75%;padding:10px;border-radius:12px;font-size:.85rem}
+.bot{background:#111;color:#fff}
+.user{background:#003d1f;color:#7dffb3;margin-left:auto}
+
+.input{position:fixed;bottom:0;width:100%;display:flex;gap:8px;padding:10px;background:#000;border-top:1px solid #111}
+.input input{flex:1;padding:12px;border-radius:20px;border:none;background:#111;color:#00ffea}
+.input button{width:46px;height:46px;border-radius:50%;border:none;background:#00ff88;font-size:1.1rem}
+
+.typing{display:flex;gap:4px}
+.dot{width:6px;height:6px;border-radius:50%;background:#00ffea;animation:blink 1.2s infinite}
+@keyframes blink{0%,80%,100%{opacity:0}40%{opacity:1}}
+</style>
+</head>
+
+<body>
+
+<header>
+  <h1>Bmb Tech Ai</h1>
+  <p>Smart • Fast • Secure</p>
+</header>
+
+<div class="chat">
+  <div class="messages" id="messages"></div>
+</div>
+
+<div class="input">
+  <input id="input" placeholder="Type your message..." />
+  <button id="send">➤</button>
+</div>
+
+<script>
+const API_URL = "/api/chat";
+const input = document.getElementById("input");
+const send = document.getElementById("send");
+const messages = document.getElementById("messages");
+
+function addMsg(text,type){
+  const div=document.createElement("div");
+  div.className="msg "+type;
+  div.innerHTML=text;
+  messages.appendChild(div);
+  messages.scrollTop=messages.scrollHeight;
+}
+
+function typing(){
+  const div=document.createElement("div");
+  div.className="msg bot";
+  div.innerHTML='<div class="typing"><div class="dot"></div><div class="dot"></div><div class="dot"></div></div>';
+  messages.appendChild(div);
+  return div;
+}
+
+async function sendMsg(){
+  const text=input.value.trim();
+  if(!text) return;
+
+  addMsg(text,"user");
+  input.value="";
+  const t=typing();
+
+  try{
+    const res=await fetch(API_URL,{
+      method:"POST",
+      headers:{"Content-Type":"application/json"},
+      body:JSON.stringify({message:text})
+    });
+    const data=await res.json();
+    t.remove();
+    addMsg(data.reply,"bot");
+  }catch{
+    t.remove();
+    addMsg("Connection error ⚠️","bot");
+  }
+}
+
+send.onclick=sendMsg;
+input.onkeydown=e=>{ if(e.key==="Enter") sendMsg(); };
+</script>
+
+</body>
+</html>
