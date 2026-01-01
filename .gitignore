@@ -1,7 +1,5 @@
-# Environment variables (DO NOT COMMIT)
+# Environment variables
 .env
-
-# Node dependencies
 node_modules/
 
 # Logs
